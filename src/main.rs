@@ -1,5 +1,6 @@
 use image::imageops::overlay;
 use image::io::Reader as ImageReader;
+use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::fs::File;
@@ -30,7 +31,7 @@ fn main() {
     }
     let infile = File::open(&args[1]).unwrap();
     let assets: Vec<Asset> = serde_json::from_reader(infile).unwrap();
-    assets.iter().for_each(|a| {
+    assets.par_iter().for_each(|a| {
         a.build();
         println!("Wrote {}..", a.outfile)
     });
