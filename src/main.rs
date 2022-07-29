@@ -1,9 +1,8 @@
 use image::imageops::overlay;
 use image::io::Reader as ImageReader;
 use serde::{Deserialize, Serialize};
+use std::env;
 use std::fs::File;
-
-const IN_FILE: &'static str = "input.json";
 
 #[derive(Serialize, Deserialize)]
 struct Asset {
@@ -24,8 +23,16 @@ impl Asset {
 }
 
 fn main() {
-    let infile = File::open(IN_FILE).unwrap();
+    let args: Vec<String> = env::args().collect();
+    if args.len() != 2 {
+        eprintln!("expects one command-line argument: infile");
+        std::process::exit(1);
+    }
+    let infile = File::open(&args[1]).unwrap();
     let assets: Vec<Asset> = serde_json::from_reader(infile).unwrap();
-    assets.iter().for_each(|a| a.build());
-    println!("Done");
+    assets.iter().for_each(|a| {
+        a.build();
+        println!("Wrote {}..", a.outfile)
+    });
+    println!("Done!");
 }
